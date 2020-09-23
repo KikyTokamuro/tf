@@ -1,2 +1,2 @@
 # tf
-Tiny Thinkpad notebooks fan control
+Tiny program for fan control Thinkpad notebooks
