@@ -1,0 +1,9 @@
+[Unit]
+Description=Tiny program for fan control Thinkpad notebooks
+
+[Service]
+ExecStart=/usr/local/bin/tf
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
