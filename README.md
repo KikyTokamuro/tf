@@ -37,7 +37,7 @@ Edit "tf.h" and rebuild and reinstall
 // {MIN, MAX}
 config_i config[] = {
     {0,  46}, // Level 0
-    {38, 51}, // Level 1
+    {41, 51}, // Level 1
     {45, 56}, // Level 2
     {51, 61}, // Level 3
     {55, 64}, // Level 4

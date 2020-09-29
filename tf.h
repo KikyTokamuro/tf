@@ -7,7 +7,7 @@
 #define F_TEMP "/sys/devices/platform/thinkpad_hwmon/hwmon/hwmon1/temp1_input"
 #define F_FAN "/proc/acpi/ibm/fan"
 
-#define SLEEP_TIME 4
+#define SLEEP_TIME 6
 
 // Fan levels
 enum {
@@ -24,7 +24,7 @@ typedef struct config_i {
 // Config (Change to suit your needs)
 config_i config[] = {
     {0,  46}, // Level 0
-    {38, 51}, // Level 1
+    {41, 51}, // Level 1
     {45, 56}, // Level 2
     {51, 61}, // Level 3
     {55, 64}, // Level 4
