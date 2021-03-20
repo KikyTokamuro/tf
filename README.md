@@ -3,8 +3,13 @@ Tiny program for fan control Thinkpad notebooks.
 
 Tested on L420. Be carefull. Absolutly no warrantly!
 
-### Prequesite:
-Add "options thinkpad_acpi fan_control=1" on "/etc/modprobe.d/thinkpad_acpi.conf"
+### Requirements:
+Add "options thinkpad_acpi fan_control=1" on "/etc/modprobe.d/thinkpad_acpi.conf".
+
+Install "libconfig":
+```sh
+sudo pacman -S libconfig
+```
 
 ### Build and Install:
 ```sh
@@ -24,26 +29,55 @@ $ sudo systemctl start tf
 ```
 
 ### Configuration:
-Edit "tf.h" and rebuild and reinstall
+Edit "/etc/tf.cfg" and restart tf service.
 
-```c
-// CPU temp
-#define F_TEMP "/sys/devices/platform/thinkpad_hwmon/hwmon/hwmon1/temp1_input"
+```
+temperature = "/sys/devices/platform/thinkpad_hwmon/hwmon/hwmon1/temp1_input";
 
-// thinkpad_acpi fan interface
-#define F_FAN "/proc/acpi/ibm/fan"
+fan = "/proc/acpi/ibm/fan";
 
-// Config (Change to suit your needs)
-// {MIN, MAX}
-config_i config[] = {
-    {0,  46}, // Level 0
-    {41, 51}, // Level 1
-    {45, 56}, // Level 2
-    {51, 61}, // Level 3
-    {55, 64}, // Level 4
-    {60, 66}, // Level 5
-    {63, 68}, // Level 6
-    {65, 74}  // Level 7
+sleep = 6;
+
+levels = {
+  level0 = { 
+    min =  0; 
+    max = 55; 
+  };
+
+  level1 = {
+    min = 48; 
+    max = 60; 
+  };
+
+  level2 = { 
+    min = 50; 
+    max = 61; 
+  };
+
+  level3 = { 
+    min = 52; 
+    max = 63; 
+  };
+  
+  level4 = { 
+    min = 56; 
+    max = 65; 
+  };
+  
+  level5 = { 
+    min = 59; 
+    max = 66; 
+  };
+  
+  level6 = { 
+    min = 62; 
+    max = 68; 
+  };
+  
+  level7 = { 
+    min = 65; 
+    max = 74; 
+  };
 };
 ```
 
