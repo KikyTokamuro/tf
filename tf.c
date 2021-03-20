@@ -48,9 +48,9 @@ level_e *levels = NULL;
 // Write to fan file
 void fan_write(int level) {
 	FILE *fan = fopen(fan_f, "w");
-    if (fan == NULL) {
-        fprintf(stderr, "Failed to open %s.\n", fan_f);
-    }
+	if (fan == NULL) {
+		fprintf(stderr, "Failed to open %s.\n", fan_f);
+	}
 
 	if (level == -1) {
 		fprintf(fan, "level auto\n");
@@ -59,11 +59,11 @@ void fan_write(int level) {
 	}
 	
 	// Message for fan_write
-    char message[12] = {'\0'};
+	char message[12] = {'\0'};
 	snprintf(message, sizeof(message), "level %d", level);
 
 	fprintf(fan, "%s\n", message);
-    fclose(fan);
+	fclose(fan);
 }
 
 // Get CPU temp
@@ -117,12 +117,12 @@ int main(int argc, char const *argv[]) {
     config_init(&cfg);
 
 	// Read config file
-    if (!config_read_file(&cfg, "/etc/tf.cfg")) {
-        fprintf(stderr, "%s:%d - %s\n", config_error_file(&cfg),
-            config_error_line(&cfg), config_error_text(&cfg));
-        config_destroy(&cfg);
-        return 1;
-    }
+	if (!config_read_file(&cfg, "/etc/tf.cfg")) {
+		fprintf(stderr, "%s:%d - %s\n", config_error_file(&cfg),
+			config_error_line(&cfg), config_error_text(&cfg));
+		config_destroy(&cfg);
+		return 1;
+	}
 
 	// Read temperature param from config
 	if (!config_lookup_string(&cfg, "temperature", &temperature_f)) {
@@ -164,7 +164,7 @@ int main(int argc, char const *argv[]) {
 			int min, max;
 
 			if (!(config_setting_lookup_int(level, "min", &min) &&
-				  config_setting_lookup_int(level, "max", &max))) {
+					config_setting_lookup_int(level, "max", &max))) {
 				fprintf(stderr, "Failed read level param from level%d", i);
 				return 1;
 			}
@@ -178,13 +178,13 @@ int main(int argc, char const *argv[]) {
 		return 1;
 	}
 	
-    // Current fan level
-    unsigned short current_level = 0;
+	// Current fan level
+	unsigned short current_level = 0;
 
 	// Install level 0
 	fan_write(current_level);
 	
-    while (run) {
+	while (run) {
 		//Current cpu temp
 		int cpu = get_temp();
 
@@ -194,18 +194,18 @@ int main(int argc, char const *argv[]) {
 
 		// CPU temp control
 		if (current_level < 7 && cpu >= current_max) {
-            current_level++;
+			current_level++;
 			fan_write(current_level);
         } else if (current_level > 0 && cpu <= current_min) {
-            current_level--;
+			current_level--;
 			fan_write(current_level);
         }
 
 		sleep(sleep_t);
     }
 
-    fan_write(-1);
+	fan_write(-1);
 	config_destroy(&cfg);
 	free(levels);
-    return 0;
+	return 0;
 }
