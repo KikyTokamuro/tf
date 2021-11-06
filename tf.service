@@ -2,7 +2,7 @@
 Description=Tiny program for fan control Thinkpad notebooks
 
 [Service]
-ExecStart=/usr/local/bin/tf
+ExecStart=/usr/local/bin/tf -i
 Restart=on-failure
 
 [Install]
