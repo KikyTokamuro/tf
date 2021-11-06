@@ -22,12 +22,12 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 */
 
-#include <signal.h>
-#include <string.h>
-#include <stdlib.h>
-#include <libconfig.h>
-#include <unistd.h>
 #include <argp.h>
+#include <libconfig.h>
+#include <signal.h>
+#include <stdlib.h>
+#include <string.h>
+#include <unistd.h>
 
 // Process status
 int run = 1;
@@ -35,7 +35,7 @@ int run = 1;
 // Config vars
 const char *temperature_f;
 const char *fan_f;
-int  sleep_t;
+int sleep_t;
 
 // Struct level items
 typedef struct level_e {
@@ -53,9 +53,10 @@ const char doc[] = "tf - tiny program for fan control Thinkpad notebooks";
 
 // Arguments
 static struct argp_option options[] = {
-  {"config", 'c', "CONFIG", 0, "Path to config file (default: /etc/tf.cfg)"},
-  {"info", 'i', 0, 0, "Displaying messages about temperature and fan level (default: false)"},
-  {0}
+    {"config", 'c', "CONFIG", 0, "Path to config file (default: /etc/tf.cfg)"},
+    {"info", 'i', 0, 0,
+     "Displaying messages about temperature and fan level (default: false)"},
+    {0}
 };
 
 struct arguments {
@@ -66,13 +67,18 @@ struct arguments {
 // Parsing arguments
 static error_t parse_opt(int key, char *arg, struct argp_state *state) {
   struct arguments *arguments = state->input;
-  
+
   switch (key) {
-  case 'c': arguments->config = arg; break;
-  case 'i': arguments->info = 1; break;
-  default: return ARGP_ERR_UNKNOWN;
+  case 'c':
+    arguments->config = arg;
+    break;
+  case 'i':
+    arguments->info = 1;
+    break;
+  default:
+    return ARGP_ERR_UNKNOWN;
   }
-  
+
   return 0;
 }
 
@@ -85,17 +91,17 @@ void fan_write(int level) {
     fprintf(stderr, "Failed to open %s.\n", fan_f);
     exit(1);
   }
-  
+
   if (level == -1) {
     fprintf(fan, "level auto\n");
     fclose(fan);
     return;
   }
-  
+
   // Message for fan_write
   char message[12] = {'\0'};
   snprintf(message, sizeof(message), "level %d", level);
-  
+
   fprintf(fan, "%s\n", message);
   fclose(fan);
 }
@@ -108,10 +114,10 @@ int get_temp() {
     exit(1);
   }
 
-  int temp_c; 
+  int temp_c;
   fscanf(temp, "%d", &temp_c);
   temp_c /= 1000;
-  
+
   fclose(temp);
 
   return temp_c;
@@ -126,22 +132,22 @@ void kill_handler(int sig) {
 void signals_init() {
   // Signal set setup
   sigset_t set;
-  sigemptyset(&set);  
-  sigaddset(&set, SIGINT); 
+  sigemptyset(&set);
+  sigaddset(&set, SIGINT);
   sigaddset(&set, SIGTERM);
-  
+
   // Sigaction setup
   struct sigaction act;
   memset(&act, 0, sizeof(act));
   act.sa_handler = kill_handler;
   act.sa_mask = set;
-  
+
   // SIGINT
   if (sigaction(SIGINT, &act, NULL) < 0) {
     fprintf(stderr, "Failed setup handler for SIGINT signal.\n");
     exit(1);
   }
-  
+
   // SIGTERM
   if (sigaction(SIGTERM, &act, NULL) < 0) {
     fprintf(stderr, "Failed setup handler for SIGTERM signal.\n");
@@ -152,71 +158,71 @@ void signals_init() {
 int main(int argc, char **argv) {
   // Init signals
   signals_init();
-  
+
   // Arguments
   struct arguments arguments;
   arguments.config = "/etc/tf.cfg";
   arguments.info = 0;
   argp_parse(&argp, argc, argv, 0, 0, &arguments);
-  
+
   // Init config
   config_t cfg;
   config_setting_t *level_settings;
   config_init(&cfg);
-  
+
   // Read config file
   if (!config_read_file(&cfg, arguments.config)) {
     fprintf(stderr, "%s:%d - %s\n", config_error_file(&cfg),
-	    config_error_line(&cfg), config_error_text(&cfg));
+            config_error_line(&cfg), config_error_text(&cfg));
     config_destroy(&cfg);
     return 1;
   }
-  
+
   // Read temperature param from config
   if (!config_lookup_string(&cfg, "temperature", &temperature_f)) {
     fprintf(stderr, "Failed read temperature param from config file.\n");
     config_destroy(&cfg);
     return 1;
   }
-  
+
   // Read fan param from config
   if (!config_lookup_string(&cfg, "fan", &fan_f)) {
     fprintf(stderr, "Failed read fan param from config file.\n");
     config_destroy(&cfg);
     return 1;
   }
-        
+
   // Read sleep param from config
   if (!config_lookup_int(&cfg, "sleep", &sleep_t)) {
     fprintf(stderr, "Failed read sleep param from config file.\n");
     config_destroy(&cfg);
     return 1;
   }
-    
+
   // Read levels params from config
   level_settings = config_lookup(&cfg, "levels");
   if (level_settings != NULL) {
     int count = config_setting_length(level_settings);
-    
+
     if ((count < 8) || (count > 8)) {
       fprintf(stderr, "The count of levels must be 8 (0-7).\n");
       config_destroy(&cfg);
       return 1;
     }
-        
+
     levels = malloc(count * sizeof(level_e));
-    
+
     for (int i = 0; i < count; i++) {
       config_setting_t *level = config_setting_get_elem(level_settings, i);
-      
+
       int min, max;
-      
+
       if (!(config_setting_lookup_int(level, "min", &min) &&
-	    config_setting_lookup_int(level, "max", &max))) {
-	fprintf(stderr, "Failed read level param from level%d", i);
-	return 1;
+            config_setting_lookup_int(level, "max", &max))) {
+        fprintf(stderr, "Failed read level param from level%d", i);
+        return 1;
       }
-      
+
       levels[i].min = min;
       levels[i].max = max;
     }
@@ -225,17 +231,17 @@ int main(int argc, char **argv) {
     config_destroy(&cfg);
     return 1;
   }
-  
+
   // Current fan level
   unsigned short current_level = 0;
-  
+
   // Install level 0
   fan_write(current_level);
-  
+
   while (run) {
-    //Current cpu temp
+    // Current cpu temp
     int cpu = get_temp();
-    
+
     // Get min and max for current level
     int current_min = levels[current_level].min;
     int current_max = levels[current_level].max;
@@ -243,22 +249,23 @@ int main(int argc, char **argv) {
     // CPU temp control
     if (!(cpu > current_min && cpu < current_max)) {
       if (current_level < 7 && cpu >= current_max) {
-	current_level++;
-	fan_write(current_level);
+        current_level++;
+        fan_write(current_level);
       } else if (current_level > 0 && cpu <= current_min) {
-	current_level--;
-	fan_write(current_level);
+        current_level--;
+        fan_write(current_level);
       }
-      
+
       if (arguments.info) {
-	fprintf(stdout, "Current temperature %d. Level %d is set\n", cpu, current_level);
-	fflush(stdout);
+        fprintf(stdout, "Current temperature %d. Level %d is set\n", cpu,
+                current_level);
+        fflush(stdout);
       }
     }
-    
+
     sleep(sleep_t);
   }
-  
+
   fan_write(-1);
   config_destroy(&cfg);
   free(levels);
